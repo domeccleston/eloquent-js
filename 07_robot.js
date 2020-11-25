@@ -165,6 +165,19 @@ function findRoute(graph, from, to) {
 const first = new VillageState('Post Office', [{ place: 'Post Office', address: 'Alice\'s House' }]);
 
 function goalOrientedRobot({place, parcels}, route) {
+  if (route.length == 0) {
+    let parcel = parcels[0];
+    if (parcel.place != place) {
+      route = findRoute(roadGraph, place, parcel.place);
+    } else {
+      route = findRoute(roadGraph, place, parcel.address);
+    }
+  }
+  return {direction: route[0], memory: route.slice(1)};
+}
+
+
+function smartGoalOrientedRobot({place, parcels}, route) {
   let parcelRoutes = parcels.map(p => {
     return {
       place: p.place,
@@ -173,9 +186,16 @@ function goalOrientedRobot({place, parcels}, route) {
     }
   })
   console.log({ place, parcelRoutes })
+
+  function sortParcelsByDistance(parcels) {
+    return parcels.sort((a, b) => {
+      return findRoute(roadGraph, place, a.place).length - findRoute(roadGraph, place, b.place).length;
+    });
+  }
+
   if (route.length == 0) {
-    let parcel = parcels[0]
-    console.log(`choosing parcel ${JSON.stringify(parcel)}`)
+    let sortedParcels = sortParcelsByDistance(parcels);
+    let parcel = sortedParcels[0];
     if (parcel.place != place) {
       route = findRoute(roadGraph, place, parcel.place);
     } else {
@@ -187,7 +207,7 @@ function goalOrientedRobot({place, parcels}, route) {
   return {direction: route[0], memory: route.slice(1)};
 }
 
-runRobot(VillageState.random(), goalOrientedRobot, []);
+// runRobot(VillageState.random(), goalOrientedRobot, []);
 
 /* -------------------------------------------- EXERCISES --------------------------------------------- */
 
@@ -227,27 +247,39 @@ class CompareRobots {
 
 }
 
-// const robotComparer = new CompareRobots(
-//   routeRobot,
-//   [],
-//   goalOrientedRobot,
-//   []
-// );
+const robotComparer = new CompareRobots(
+  goalOrientedRobot,
+  [],
+  smartGoalOrientedRobot,
+  []
+);
 
-// console.log(robotComparer.compare())
-
-/*
-
-02: OPTIMIZE A ROBOT
-
-How can we improve the goal-oriented robot's performance?
-
-*/
-
+console.log(robotComparer.compare())
 
 /*
 
-If not all of the parcels have been collected (memory.parcels.length !== parcels.length), keep picking up
-parcels: move to the square containing them.
+Persistent Group class
 
 */
+
+class PGroup {
+  constructor(values = []) {
+    this.values = values;
+  }
+
+  add(value) {
+    const newValues = this.values.concat([value])
+    return new PGroup(newValues);
+  }
+
+  has(value) {
+    return this.items.includes(value);
+  }
+
+  delete(value) {
+    const newValues = this.values.filter(v => v !== value);
+    return new PGroup(newValues);
+  }
+}
+
+PGroup.empty = new PGroup();
