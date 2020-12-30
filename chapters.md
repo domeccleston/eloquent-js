@@ -12,8 +12,8 @@ __Part 1: The Language__
 - [x] Chapter 6: The Secret Life of Objects
 - [x] Chapter 7: Project: A Robot
 - [x] Chapter 8: Bugs and Errors
-- [ ] Chapter 9: Regular Expressions
-- [ ] Chapter 10: Modules
+- [x] Chapter 9: Regular Expressions
+- [x] Chapter 10: Modules
 - [ ] Chapter 11: Asynchronous Programming
 - [ ] Chapter 12: Project: A Programming Language
 
